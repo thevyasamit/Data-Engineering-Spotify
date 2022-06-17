@@ -3,6 +3,7 @@ from tokenize import Token
 from wsgiref import headers
 from matplotlib import artist
 from matplotlib.ft2font import BOLD
+from numpy import append
 import sqlalchemy
 import  requests
 import json
@@ -12,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 import pandas as pd
 
 DATABASE_LOCATION = "sqlite:///my_tracks.sqlite"
-USER_ID = "YOUR_SPOTIFY_USER_NAME"
+USER_ID = "YOUR_SPOTIFY_USERNAME"
 TOKEN = "GET_YOUR_TOKEN"
 def check_valid_data(df: pd.DataFrame) -> bool:
 
@@ -49,9 +50,28 @@ if __name__ == "__main__":
     }
     
     songs_df = pd.DataFrame(songs_di, columns=["song_name","artist_names"])
-    
+    print(songs_df)
     
     # This is Transforming/checking/Validating data 
     
     if check_valid_data(songs_df):
         print("Data is Valid")
+
+    # This is for loading the data in a table using bthe traditional SQL.
+    
+    eng =  sqlalchemy.create_engine(DATABASE_LOCATION)
+    conn = sqlite3.connect('my_spotify_list')
+    cur = conn.cursor()
+    query = """
+    CREATE TABLE IF NOT EXISTS my_spotify_list(
+        song_name VARCHAR(100),
+        artist_name VARCHAR(100)   
+    )
+    
+    """
+    cur.execute(query)
+    try:
+        songs_df.to_sql("my_spotify_list",eng,if_exists= 'append')
+    except:
+        print("Data already exists")
+    conn.close()
