@@ -1,8 +1,11 @@
+from cProfile import label
 from lib2to3.pgen2 import token
 from tokenize import Token
 from wsgiref import headers
 from matplotlib import artist
 from matplotlib.ft2font import BOLD
+from matplotlib import pyplot as plt
+import numpy as np
 from numpy import append
 import sqlalchemy
 import  requests
@@ -25,6 +28,28 @@ def check_valid_data(df: pd.DataFrame) -> bool:
         raise Exception("Null Value found.")
 
 # This is extraction of the data.
+
+def plot_data():
+    #eng =  sqlalchemy.create_engine(DATABASE_LOCATION)
+    conn = sqlite3.connect('my_tracks.sqlite')
+    cur = conn.cursor()
+    query = 'SELECT * FROM my_spotify_list'
+    cur.execute(query)
+    data = cur.fetchall()
+    pieChart = []
+    for i in range(len(data)):
+        for j in range(len(data[0])):
+            pieChart.append(data[i][2])
+    data1 = list(set(pieChart))
+    data2 = []
+    for i in range(len(data1)):
+        data2.append(pieChart.count(data1[i]))
+   
+    fig = plt.figure(figsize=(8,8))
+    plt.pie(data2, labels=data1)
+    plt.show()
+   
+    
 
 if __name__ == "__main__":
     headers = {
@@ -75,3 +100,5 @@ if __name__ == "__main__":
     except:
         print("Data already exists")
     conn.close()
+    
+    plot_data()
